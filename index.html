@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="NZ Trip '27" />
+  <meta name="theme-color" content="#0f3d33" />
+  <title>Xmas & NY '27 — Marlborough & Nelson NZ</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            pounamu: {
+              50: '#f0f7f5',
+              100: '#d9ede7',
+              500: '#1f7a65',
+              700: '#145345',
+              800: '#0f3d33',
+              900: '#092620',
+            },
+            sand: {
+              50: '#fcfaf7',
+              100: '#f5f0e6',
+              200: '#e8decb',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+    * {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      overscroll-behavior-y: none;
+    }
+
+    /* Hide scrollbar for horizontal pill bar */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* Safe area padding for iOS notch & home bar */
+    .pt-safe {
+      padding-top: max(env(safe-area-inset-top), 0.75rem);
+    }
+    .pb-safe {
+      padding-bottom: max(env(safe-area-inset-bottom), 0.75rem);
+    }
+  </style>
+</head>
+<body class="bg-sand-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-200 min-h-screen flex flex-col">
+
+  <!-- Sticky App Header -->
+  <header class="sticky top-0 z-30 bg-pounamu-800 text-white shadow-md pt-safe">
+    <div class="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between gap-2">
+      <div class="min-w-0">
+        <div class="flex items-center gap-2">
+          <span class="text-lg">🌿</span>
+          <h1 class="font-bold text-base sm:text-lg tracking-tight truncate">Xmas & NY '27 • NZ</h1>
+        </div>
+        <p class="text-xs text-pounamu-100 truncate">Dec 25, 2026 – Jan 4, 2027 • Marlborough & Tasman</p>
+      </div>
+
+      <div class="flex items-center gap-1.5 shrink-0">
+        <!-- Offline Status Pill -->
+        <span id="offline-badge" class="hidden sm:inline-flex items-center gap-1 text-[11px] font-medium px-2 py-1 rounded-full bg-pounamu-700 text-pounamu-100">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Offline Ready
+        </span>
+
+        <!-- Dark Mode Toggle -->
+        <button id="theme-toggle" aria-label="Toggle dark mode" class="p-2 rounded-xl bg-pounamu-700/80 hover:bg-pounamu-700 active:scale-95 transition text-sm">
+          <span id="theme-icon">🌙</span>
+        </button>
+
+        <!-- Download Standalone HTML Button -->
+        <button id="download-offline-btn" class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold text-xs shadow-sm active:scale-95 transition">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.3" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V3" />
+          </svg>
+          <span>Save Offline</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Day Selector Bar (Visible on Itinerary Tab) -->
+    <div id="day-filter-bar" class="max-w-2xl mx-auto px-3 pb-2.5 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+      <!-- Populated by JS -->
+    </div>
+  </header>
+
+  <!-- Toast Notification Banner -->
+  <div id="toast" class="fixed top-20 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 transition-opacity duration-300">
+    <div id="toast-msg" class="bg-slate-900 dark:bg-slate-800 text-white text-xs font-medium px-4 py-2.5 rounded-full shadow-lg border border-slate-700"></div>
+  </div>
+
+  <!-- Main Content Area -->
+  <main class="flex-1 max-w-2xl w-full mx-auto px-4 pt-4 pb-28">
+    <!-- Tab 1: Itinerary -->
+    <section id="tab-itinerary" class="space-y-4"></section>
+
+    <!-- Tab 2: Stays & Bookings -->
+    <section id="tab-stays" class="hidden space-y-4"></section>
+
+    <!-- Tab 3: Transport & Crew -->
+    <section id="tab-transport" class="hidden space-y-5"></section>
+
+    <!-- Tab 4: Gear & Offline Checklist -->
+    <section id="tab-checklist" class="hidden space-y-4"></section>
+  </main>
+
+  <!-- Fixed Bottom App Navigation Bar -->
+  <nav class="fixed bottom-0 inset-x-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur border-t border-slate-200 dark:border-slate-800 pb-safe">
+    <div class="max-w-2xl mx-auto grid grid-cols-4 gap-1 px-2 pt-1.5">
+      <button data-tab="itinerary" class="nav-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-pounamu-700 dark:text-emerald-400 font-semibold">
+        <span class="text-lg leading-none mb-1">🗺️</span>
+        <span class="text-[11px]">Itinerary</span>
+      </button>
+      <button data-tab="stays" class="nav-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-slate-500 dark:text-slate-400 font-medium">
+        <span class="text-lg leading-none mb-1">🏡</span>
+        <span class="text-[11px]">Stays</span>
+      </button>
+      <button data-tab="transport" class="nav-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-slate-500 dark:text-slate-400 font-medium">
+        <span class="text-lg leading-none mb-1">⛴️</span>
+        <span class="text-[11px]">Crew & Travel</span>
+      </button>
+      <button data-tab="checklist" class="nav-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-slate-500 dark:text-slate-400 font-medium">
+        <span class="text-lg leading-none mb-1">🎒</span>
+        <span class="text-[11px]">Gear & Prep</span>
+      </button>
+    </div>
+  </nav>
+
+  <script>
+    // ============================================================================
+    // TRIP DATA (SINGLE SOURCE OF TRUTH FOR OFFLINE USE)
+    // ============================================================================
+    const CREW_MEMBERS = [
+      { id: 'pasha', name: 'Pasha', from: 'Christchurch', color: 'bg-emerald-600' },
+      { id: 'dasha', name: 'Dasha (Ada)', from: 'Christchurch', color: 'bg-teal-600' },
+      { id: 'igor', name: 'Igor', from: 'Wellington', color: 'bg-sky-600' },
+      { id: 'vita', name: 'Vita', from: 'Wellington', color: 'bg-indigo-600' },
+      { id: 'valik', name: 'Valik', from: 'Christchurch', color: 'bg-amber-600' },
+      { id: 'tanya', name: 'Tanya', from: 'Joining NYE', color: 'bg-rose-600' }
+    ];
+
+    const STAYS_DATA = [
+      {
+        id: 'stay-1',
+        dates: 'Dec 25 – Dec 26 (1 Night)',
+        dayRange: [1],
+        name: 'Copper Beech Vineyard',
+        location: 'Blenheim, Marlborough',
+        region: 'Marlborough',
+        guests: '4–5 pax',
+        defaultStatus: 'booked',
+        notes: 'Working vineyard villa with fireplace & summer pool. Replaced the cancelled $721 Kenepuru yurt.',
+        links: [
+          { label: 'Holiday Houses Listing', url: 'https://www.holidayhouses.co.nz/listing/49826?checkin=2026-12-25&checkout=2026-12-26&adults=4' }
+        ]
+      },
+      {
+        id: 'stay-2',
+        dates: 'Dec 26 – Dec 27 (1 Night)',
+        dayRange: [2],
+        name: 'Nydia Lodge (DOC Hut)',
+        location: 'Nydia Bay, Pelorus Sound',
+        region: 'Nydia Track',
+        guests: '5 pax (6-person bunkroom)',
+        defaultStatus: 'booked',
+        notes: 'Upgraded from 4-bed to 6-bed bunkroom ($137/night) so Valik can join. Bring sleeping bags & food!',
+        links: [
+          { label: 'DOC Lodge Info', url: 'https://www.doc.govt.nz/parks-and-recreation/places-to-go/marlborough/places/pelorus-and-kenepuru-sounds-area/things-to-do/lodges/nydia-lodge/' },
+          { label: 'DOC Booking Portal', url: 'https://bookings.doc.govt.nz/Web/Default.aspx#!park/748/2488' }
+        ]
+      },
+      {
+        id: 'stay-3',
+        dates: 'Dec 27 – Dec 29 (2 Nights)',
+        dayRange: [3, 4],
+        name: 'Kissing Gate Glamping',
+        location: 'Māpua, Nelson-Tasman',
+        region: 'Māpua',
+        guests: '4 pax ($930 NZD total)',
+        defaultStatus: 'booked',
+        notes: 'Check-in 3:00 PM on Dec 27 after finishing Nydia Track. Luxury recovery base near Māpua cafes & Rabbit Island.',
+        links: [
+          { label: 'Canopy Camping Escapes', url: 'https://canopycamping.co.nz/kissing-gate' }
+        ]
+      },
+      {
+        id: 'stay-4',
+        dates: 'Dec 29 – Dec 30 (1 Night)',
+        dayRange: [5],
+        name: 'Pearse River Hobbit House',
+        location: '62 Pearse Valley Rd, Motueka Valley',
+        region: 'Great Taste Trail',
+        guests: '3 pax (Pasha, Dasha, Igor)',
+        defaultStatus: 'booked',
+        notes: 'Earthen home on the Great Taste Trail near Woodstock with horses. Replaced cancelled Wheturangi villa.',
+        links: [
+          { label: 'Airbnb Listing', url: 'https://www.airbnb.co.nz/rooms/1068229773868687435' },
+          { label: 'Google Maps Pin', url: 'https://maps.app.goo.gl/ZChBfZeEXQ5c89CW6' }
+        ]
+      },
+      {
+        id: 'stay-5',
+        dates: 'Dec 30 – Dec 31 (1 Night)',
+        dayRange: [6],
+        name: 'Ridgeview Retreat',
+        location: '33 Ridgeview Rd, Redwood Valley',
+        region: 'Great Taste Trail',
+        guests: '3 pax (Pasha, Dasha, Igor)',
+        defaultStatus: 'booked',
+        notes: 'Close to Kissing Gate / Māpua where the car is parked after completing the ~60km Woodstock loop.',
+        links: [
+          { label: 'Airbnb Listing', url: 'https://www.airbnb.co.nz/rooms/17031321' },
+          { label: 'Google Maps Pin', url: 'https://maps.app.goo.gl/LKvTErGzyRdAjaQ9A' }
+        ]
+      },
+      {
+        id: 'stay-6',
+        dates: 'Dec 31 – Jan 2 (2 Nights)',
+        dayRange: [7, 8],
+        name: 'Fresh Renovated Family Home',
+        location: 'Central Nelson',
+        region: 'Nelson NYE',
+        guests: '5–6 pax (includes Tanya & Vita)',
+        defaultStatus: 'booked',
+        notes: 'Confirmed & shifted from Dec 30–Jan 1 to Dec 31–Jan 2 (~$906). Walkable to NYE fireworks in Nelson.',
+        links: [
+          { label: 'Primary Airbnb (Booked)', url: 'https://www.airbnb.co.nz/rooms/1303481259089661777' },
+          { label: 'Backup: Oaktree House (5 pax)', url: 'https://www.holidayhouses.co.nz/listing/79697?adults=1&checkin=2026-12-31&checkout=2027-01-02' }
+        ]
+      },
+      {
+        id: 'stay-7',
+        dates: 'Jan 2 – Jan 4 (2 Nights)',
+        dayRange: [9, 10],
+        name: 'Marlborough Sounds / French Pass',
+        location: 'Bulwer / French Pass / Duncan Bay',
+        region: 'French Pass',
+        guests: '4–5 pax (Tanya leaves Jan 3)',
+        defaultStatus: 'pending',
+        notes: 'Not yet booked! D\'Urville Island lodges are sold out/closing, so choose one of the 3 shortlisted mainland Sounds cottages below.',
+        links: [
+          { label: 'Option 1: Bulwer Retreat #1 (Airbnb)', url: 'https://www.airbnb.com.au/rooms/1538018032394057743' },
+          { label: 'Option 1b: Bulwer Retreat (Bookabach)', url: 'https://www.bookabach.co.nz/holiday-accommodation/p20257045' },
+          { label: 'Option 2: Te Awatea, French Pass', url: 'https://www.holidayhouses.co.nz/listing/75790?adults=6&checkin=2027-01-01&checkout=2027-01-03' },
+          { label: 'Option 3: Roisin dubh, Duncan Bay', url: 'https://www.holidayhouses.co.nz/listing/80993?checkin=2027-01-02&checkout=2027-01-04&adults=4' }
+        ]
+      }
+    ];
+
+    const ITINERARY_DAYS = [
+      {
+        day: 1,
+        date: 'Fri, Dec 25, 2026',
+        title: 'Arrival in Picton & Blenheim Wineries',
+        region: 'Marlborough',
+        regionColor: 'bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-200',
+        crew: ['pasha', 'dasha', 'igor', 'vita', 'valik'],
+        summary: 'Igor & Vita take the 8:15 AM ferry from Wellington to Picton (arriving 12:00 PM), meeting Pasha, Dasha & Valik driving up from Christchurch. Afternoon wine tasting & relaxing in Blenheim.',
+        logistics: [
+          'Ferry: Wellington → Picton (8:15 AM – 12:00 PM, foot passengers — Igor & Vita).',
+          'Car transport: Pasha & Dasha driving from Christchurch with 3-bike rack.',
+          'Stock up on trail snacks, breakfast, and lunch supplies for tomorrow\'s Nydia Track hike.'
+        ],
+        stayId: 'stay-1'
+      },
+      {
+        day: 2,
+        date: 'Sat, Dec 26, 2026',
+        title: 'Nydia Track — Day 1 Hike',
+        region: 'Nydia Track',
+        regionColor: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-200',
+        crew: ['pasha', 'dasha', 'igor', 'vita', 'valik'],
+        summary: 'Drive to the Nydia Track trailhead (starting from the top/Kaiuma or Tennyson side with car shuttle/water taxi backup) and hike ~4.5–5 hours through native bush to Nydia Bay.',
+        logistics: [
+          'Total track length is ~27 km over 2 days (~4.5–6 hrs hiking per day).',
+          'Mandatory gear: Sleeping bags & personal food (DOC Lodge has bunks/mattresses & kitchen, no bedding).',
+          'Rain Plan B: Private water taxi directly to Nydia Bay if weather turns foul.',
+          'Optional afternoon kayaking in Nydia Bay.'
+        ],
+        stayId: 'stay-2'
+      },
+      {
+        day: 3,
+        date: 'Sun, Dec 27, 2026',
+        title: 'Nydia Track — Day 2 & Drive to Māpua',
+        region: 'Māpua',
+        regionColor: 'bg-teal-100 text-teal-800 dark:bg-teal-900/50 dark:text-teal-200',
+        crew: ['pasha', 'dasha', 'igor', 'vita', 'valik'],
+        summary: 'Finish the second half of the Nydia Track, pick up the car, and drive ~2 hours west to Māpua for a well-earned luxury glamping recovery.',
+        logistics: [
+          'Aim to finish hiking around midday so you reach Kissing Gate by 3:00 PM check-in.',
+          'Kissing Gate is booked for 4 people (2 nights) — coordinate sleeping arrangements if Valik stays nearby or joins.'
+        ],
+        stayId: 'stay-3'
+      },
+      {
+        day: 4,
+        date: 'Mon, Dec 28, 2026',
+        title: 'Great Taste Trail — Day 1 (Coastal & Wineries)',
+        region: 'Great Taste Trail',
+        regionColor: 'bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-200',
+        crew: ['pasha', 'dasha', 'igor', 'vita'],
+        summary: 'Pick up a rental bike for Vita near Richmond, park the car near Brightwater/Wakefield, and ride the scenic coastal leg across Rabbit Island & the Māpua Ferry.',
+        logistics: [
+          'Easy ~2 hours of pure riding time, leaving plenty of time for tastings.',
+          'Key stops: Seifried Estate Winery, Eddyline Brewery, and Māpua Wharf.',
+          'Leave 3 bikes secured/ready on the trail for tomorrow\'s continuation after Vita\'s morning flight.'
+        ],
+        stayId: 'stay-3'
+      },
+      {
+        day: 5,
+        date: 'Tue, Dec 29, 2026',
+        title: 'Great Taste Trail — Day 2 (Māpua to Motueka Valley)',
+        region: 'Great Taste Trail',
+        regionColor: 'bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-200',
+        crew: ['pasha', 'dasha', 'igor'],
+        summary: 'Early morning airport drop-off for Vita (7:00 AM flight to Wellington). Pasha, Dasha & Igor ride ~25 km to Motueka for lunch & fresh-hop breweries, then ~30 km along the river valley to Woodstock.',
+        logistics: [
+          'Flight: Vita flies Nelson → Wellington at 7:00 AM (Air NZ).',
+          'Total cycling: ~55 km (25 km flat coastal to Motueka + 30 km scenic valley ride).',
+          'Buy wine and breakfast food in Motueka for bike panniers — Motueka Valley is remote!'
+        ],
+        stayId: 'stay-4'
+      },
+      {
+        day: 6,
+        date: 'Wed, Dec 30, 2026',
+        title: 'Great Taste Trail — Day 3 (Woodstock to Redwood Valley)',
+        region: 'Great Taste Trail',
+        regionColor: 'bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-200',
+        crew: ['pasha', 'dasha', 'igor'],
+        summary: 'Tackle the wild inland loop (~60 km) from Motueka Valley / Woodstock back toward Wakefield and Redwood Valley, finishing the 3-day bike tour near where the car is parked.',
+        logistics: [
+          'Most remote stretch of the trail — carry plenty of water and snacks.',
+          'Shortcut road options available if legs are tired after 60 km.',
+          'Collect the car near Brightwater/Māpua before heading to Ridgeview Retreat.'
+        ],
+        stayId: 'stay-5'
+      },
+      {
+        day: 7,
+        date: 'Thu, Dec 31, 2026',
+        title: 'New Year\'s Eve in Central Nelson!',
+        region: 'Nelson NYE',
+        regionColor: 'bg-rose-100 text-rose-800 dark:bg-rose-900/50 dark:text-rose-200',
+        crew: ['pasha', 'dasha', 'igor', 'vita', 'valik', 'tanya'],
+        summary: 'Drive into Nelson, explore the town & Tahunanui Beach, welcome Tanya & Valik, and pick up Vita from Nelson Airport in the evening. Celebrate NYE with fireworks in central Nelson.',
+        logistics: [
+          'Flight: Vita lands in Nelson from Wellington around 7:00–9:00 PM after work.',
+          'Tanya arrives today for NYE through Jan 2.',
+          'Full 6-person squad together for New Year\'s Eve!'
+        ],
+        stayId: 'stay-6'
+      },
+      {
+        day: 8,
+        date: 'Fri, Jan 1, 2027',
+        title: 'New Year\'s Day Chill in Nelson',
+        region: 'Nelson NYE',
+        regionColor: 'bg-rose-100 text-rose-800 dark:bg-rose-900/50 dark:text-rose-200',
+        crew: ['pasha', 'dasha', 'igor', 'vita', 'valik', 'tanya'],
+        summary: 'Slow New Year\'s Day recovery in Nelson — brunch, beach time at Tahunanui, or easy walks up to the Centre of New Zealand.',
+        logistics: [
+          'Second night at the Fresh Renovated Family Home in Nelson.',
+          'Grab groceries in Nelson before driving out to the remote Marlborough Sounds tomorrow.'
+        ],
+        stayId: 'stay-6'
+      },
+      {
+        day: 9,
+        date: 'Sat, Jan 2, 2027',
+        title: 'Drive to French Pass & Pelorus Sound',
+        region: 'French Pass',
+        regionColor: 'bg-sky-100 text-sky-800 dark:bg-sky-900/50 dark:text-sky-200',
+        crew: ['pasha', 'dasha', 'igor', 'vita', 'valik', 'tanya'],
+        summary: 'Scenic winding coastal drive out to French Pass / Pelorus Sound. Watch the dramatic tidal currents at Te Aumiti (French Pass) overlooking D\'Urville Island.',
+        logistics: [
+          'Allow 2–2.5 hours driving from Nelson along winding Sounds roads.',
+          'Note: Tanya departs early Jan 3 for work.',
+          'Action needed: Finalize booking for one of the 3 shortlisted Sounds houses.'
+        ],
+        stayId: 'stay-7'
+      },
+      {
+        day: 10,
+        date: 'Sun, Jan 3, 2027',
+        title: 'Exploring French Pass & Sounds Trails',
+        region: 'French Pass',
+        regionColor: 'bg-sky-100 text-sky-800 dark:bg-sky-900/50 dark:text-sky-200',
+        crew: ['pasha', 'dasha', 'igor', 'vita', 'valik'],
+        summary: 'Tanya heads back to work. The rest of the crew spends a full day hiking coastal ridges, fishing, or kayaking in the bays around French Pass.',
+        logistics: [
+          'Very limited cell reception and shops in French Pass — rely on offline maps.',
+          'Pack bags tonight for the drive out to Picton tomorrow.'
+        ],
+        stayId: 'stay-7'
+      },
+      {
+        day: 11,
+        date: 'Mon, Jan 4, 2027',
+        title: 'Return Drive to Picton & Departure Home',
+        region: 'Marlborough',
+        regionColor: 'bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-200',
+        crew: ['pasha', 'dasha', 'igor', 'vita', 'valik'],
+        summary: 'Drive out of the Sounds to Picton. Igor & Vita catch the 7:15 PM ferry back to Wellington, while Pasha, Dasha & Valik drive south to Christchurch.',
+        logistics: [
+          'Ferry: Picton → Wellington departs at 7:15 PM (Igor & Vita).',
+          'Drive Picton → Christchurch takes ~4.5–5 hours via Kaikōura.'
+        ],
+        stayId: null
+      }
+    ];
+
+    const TRANSPORT_SCHEDULE = [
+      {
+        date: 'Fri, Dec 25, 2026',
+        time: '8:15 AM – 12:00 PM',
+        type: 'Ferry',
+        icon: '⛴️',
+        route: 'Wellington → Picton',
+        who: 'Igor & Vita (foot passengers)',
+        note: 'Meet Pasha, Dasha & Valik in Picton/Blenheim.'
+      },
+      {
+        date: 'Tue, Dec 29, 2026',
+        time: '7:00 AM',
+        type: 'Flight',
+        icon: '✈️',
+        route: 'Nelson (NSN) → Wellington (WLG)',
+        who: 'Vita',
+        note: 'Air NZ morning flight back to work for Dec 29–31.'
+      },
+      {
+        date: 'Thu, Dec 31, 2026',
+        time: '~7:00 PM – 9:00 PM',
+        type: 'Flight',
+        icon: '✈️',
+        route: 'Wellington (WLG) → Nelson (NSN)',
+        who: 'Vita',
+        note: 'Evening flight after work to join NYE celebrations.'
+      },
+      {
+        date: 'Mon, Jan 4, 2027',
+        time: '7:15 PM',
+        type: 'Ferry',
+        icon: '⛴️',
+        route: 'Picton → Wellington',
+        who: 'Igor & Vita',
+        note: 'Evening Cook Strait crossing home.'
+      }
+    ];
+
+    const DEFAULT_CHECKLIST = [
+      { id: 'chk-1', category: 'Hike & Sleep', text: 'Sleeping bags (mandatory for DOC Nydia Lodge on Dec 26)', done: false },
+      { id: 'chk-2', category: 'Bikes & Trail', text: '3-bike car rack + Pasha, Dasha & Igor bikes from Chch/Wlg', done: false },
+      { id: 'chk-3', category: 'Bikes & Trail', text: 'Book 1 rental bike near Richmond for Vita (Dec 28)', done: false },
+      { id: 'chk-4', category: 'Bookings', text: 'Book Jan 2–4 accommodation in French Pass / Bulwer / Duncan Bay', done: false },
+      { id: 'chk-5', category: 'Offline Prep', text: 'Download Google Maps offline area (Marlborough Sounds & Tasman)', done: false },
+      { id: 'chk-6', category: 'Gear', text: 'Rain jackets, daypacks & trail shoes for Nydia Track (27 km)', done: false },
+      { id: 'chk-7', category: 'Gear', text: 'Swimwear & towels (Blenheim pool, Sounds bays & NYE)', done: false },
+      { id: 'chk-8', category: 'Food & Trail', text: 'Bike pannier bags for wine & breakfast on Motueka Valley leg', done: false }
+    ];
+
+    // ============================================================================
+    // LOCALSTORAGE STATE MANAGEMENT
+    // ============================================================================
+    const STORAGE_KEY = 'nz_trip_2027_state_v1';
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) return JSON.parse(raw);
+      } catch (e) {
+        console.warn('Could not read localStorage:', e);
+      }
+      return {
+        darkMode: false,
+        activeTab: 'itinerary',
+        selectedDay: 'all',
+        stayStatuses: {},
+        dayNotes: {},
+        checklist: DEFAULT_CHECKLIST
+      };
+    }
+
+    let appState = loadState();
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+      } catch (e) {
+        console.warn('Could not save localStorage:', e);
+      }
+    }
+
+    // ============================================================================
+    // UI HELPERS & TOAST
+    // ============================================================================
+    let toastTimer;
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      const msgEl = document.getElementById('toast-msg');
+      msgEl.textContent = message;
+      toast.classList.remove('opacity-0');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.classList.add('opacity-0');
+      }, 2400);
+    }
+
+    function getStayStatus(stay) {
+      return appState.stayStatuses[stay.id] || stay.defaultStatus;
+    }
+
+    function getCrewBadge(crewId) {
+      const member = CREW_MEMBERS.find(c => c.id === crewId);
+      if (!member) return '';
+      return `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200/80 dark:border-slate-700">
+        <span class="w-2 h-2 rounded-full ${member.color}"></span>
+        ${member.name.split(' ')[0]}
+      </span>`;
+    }
+
+    // ============================================================================
+    // RENDER FUNCTIONS
+    // ============================================================================
+    function renderDayFilterBar() {
+      const bar = document.getElementById('day-filter-bar');
+      const isAll = appState.selectedDay === 'all';
+      let html = `
+        <button onclick="selectDay('all')" class="shrink-0 px-3 py-1 rounded-full text-xs font-semibold transition ${
+          isAll
+            ? 'bg-emerald-400 text-slate-950 shadow-sm'
+            : 'bg-pounamu-700/80 text-pounamu-100 hover:bg-pounamu-700'
+        }">All 11 Days</button>
+      `;
+
+      ITINERARY_DAYS.forEach(d => {
+        const active = appState.selectedDay === d.day;
+        const shortDate = d.date.split(', ')[1].replace(', 2026', '').replace(', 2027', '');
+        html += `
+          <button onclick="selectDay(${d.day})" class="shrink-0 px-3 py-1 rounded-full text-xs font-medium transition ${
+            active
+              ? 'bg-emerald-400 text-slate-950 font-semibold shadow-sm'
+              : 'bg-pounamu-700/60 text-pounamu-100 hover:bg-pounamu-700'
+          }">D${d.day} • ${shortDate}</button>
+        `;
+      });
+
+      bar.innerHTML = html;
+    }
+
+    function renderItinerary() {
+      const container = document.getElementById('tab-itinerary');
+      const daysToShow = appState.selectedDay === 'all'
+        ? ITINERARY_DAYS
+        : ITINERARY_DAYS.filter(d => d.day === appState.selectedDay);
+
+      container.innerHTML = daysToShow.map(d => {
+        const stay = STAYS_DATA.find(s => s.id === d.stayId);
+        const stayStatus = stay ? getStayStatus(stay) : null;
+        const userNote = appState.dayNotes[d.day] || '';
+
+        const stayBlock = stay ? `
+          <div class="mt-3 p-3 rounded-xl bg-sand-100/80 dark:bg-slate-800/80 border border-sand-200 dark:border-slate-700/80">
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Tonight's Stay</div>
+                <div class="font-bold text-sm text-slate-900 dark:text-white mt-0.5">${stay.name}</div>
+                <div class="text-xs text-slate-600 dark:text-slate-300">${stay.location}</div>
+              </div>
+              <span class="shrink-0 px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${
+                stayStatus === 'booked'
+                  ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300'
+                  : 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300'
+              }">
+                ${stayStatus === 'booked' ? '✓ Booked' : '⏳ To Book'}
+              </span>
+            </div>
+            <div class="mt-2.5 flex flex-wrap gap-1.5">
+              ${stay.links.map(link => `
+                <a href="${link.url}" target="_blank" rel="noopener noreferrer"
+                   class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-white dark:bg-slate-900 text-pounamu-700 dark:text-emerald-400 border border-slate-200 dark:border-slate-700 hover:border-pounamu-500 transition">
+                  <span>🔗 ${link.label}</span>
+                </a>
+              `).join('')}
+            </div>
+          </div>
+        ` : `
+          <div class="mt-3 p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800/50 text-xs text-slate-600 dark:text-slate-300 flex items-center gap-2">
+            <span>🏁</span>
+            <span>Final day of trip — heading home to Wellington & Christchurch.</span>
+          </div>
+        `;
+
+        return `
+          <article class="bg-white dark:bg-slate-900 rounded-2xl p-4 shadow-sm border border-slate-200/80 dark:border-slate-800">
+            <!-- Top Row: Day & Region -->
+            <div class="flex items-center justify-between gap-2 mb-1.5">
+              <div class="flex items-center gap-2">
+                <span class="px-2.5 py-0.5 rounded-lg bg-pounamu-800 text-white text-xs font-bold">Day ${d.day}</span>
+                <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">${d.date}</span>
+              </div>
+              <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${d.regionColor}">${d.region}</span>
+            </div>
+
+            <!-- Title & Summary -->
+            <h2 class="font-bold text-base sm:text-lg text-slate-900 dark:text-white leading-snug">${d.title}</h2>
+            <p class="text-sm text-slate-600 dark:text-slate-300 mt-1.5 leading-relaxed">${d.summary}</p>
+
+            <!-- Crew Present -->
+            <div class="mt-3 flex flex-wrap items-center gap-1.5">
+              <span class="text-[11px] font-semibold text-slate-400 uppercase mr-0.5">Crew (${d.crew.length}):</span>
+              ${d.crew.map(getCrewBadge).join('')}
+            </div>
+
+            <!-- Accommodation Card -->
+            ${stayBlock}
+
+            <!-- Expandable Offline Logistics & Personal Notes -->
+            <details class="mt-3 group">
+              <summary class="list-none cursor-pointer flex items-center justify-between text-xs font-semibold text-pounamu-700 dark:text-emerald-400 py-1.5 px-2.5 rounded-lg bg-pounamu-50/70 dark:bg-slate-800/60 hover:bg-pounamu-100/70 transition">
+                <span>📋 Logistics & Personal Notes ${userNote ? '• (1 note saved)' : ''}</span>
+                <span class="group-open:rotate-180 transition-transform">▾</span>
+              </summary>
+              <div class="mt-2.5 pl-1 space-y-2.5">
+                <ul class="space-y-1.5 text-xs text-slate-600 dark:text-slate-300">
+                  ${d.logistics.map(item => `
+                    <li class="flex items-start gap-2">
+                      <span class="text-pounamu-500 mt-0.5">•</span>
+                      <span>${item}</span>
+                    </li>
+                  `).join('')}
+                </ul>
+                <div class="pt-1">
+                  <label class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1">Offline Personal Note (saved on phone):</label>
+                  <textarea
+                    rows="2"
+                    placeholder="Add offline reminder, confirmation code, or meeting spot..."
+                    onchange="updateDayNote(${d.day}, this.value)"
+                    class="w-full rounded-xl text-xs p-2.5 bg-sand-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-pounamu-500"
+                  >${userNote}</textarea>
+                </div>
+              </div>
+            </details>
+          </article>
+        `;
+      }).join('');
+    }
+
+    function renderStays() {
+      const container = document.getElementById('tab-stays');
+      const bookedCount = STAYS_DATA.filter(s => getStayStatus(s) === 'booked').length;
+
+      container.innerHTML = `
+        <div class="bg-pounamu-800 text-white rounded-2xl p-4 shadow-sm flex items-center justify-between">
+          <div>
+            <h2 class="font-bold text-base">Accommodation Directory</h2>
+            <p class="text-xs text-pounamu-100 mt-0.5">${bookedCount} of ${STAYS_DATA.length} stays confirmed • Tap status to toggle</p>
+          </div>
+          <span class="text-2xl">🏡</span>
+        </div>
+
+        ${STAYS_DATA.map(stay => {
+          const status = getStayStatus(stay);
+          const isBooked = status === 'booked';
+          return `
+            <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 shadow-sm border border-slate-200/80 dark:border-slate-800">
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <span class="text-xs font-bold text-pounamu-700 dark:text-emerald-400">${stay.dates}</span>
+                  <h3 class="font-bold text-base text-slate-900 dark:text-white mt-0.5">${stay.name}</h3>
+                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">📍 ${stay.location} • 👥 ${stay.guests}</p>
+                </div>
+                <button onclick="toggleStayStatus('${stay.id}')"
+                  class="shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition active:scale-95 ${
+                    isBooked
+                      ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300 border border-emerald-300/60'
+                      : 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300 border border-amber-300/60'
+                  }">
+                  ${isBooked ? '✓ Booked' : '⏳ To Book'}
+                </button>
+              </div>
+
+              <p class="text-xs text-slate-600 dark:text-slate-300 mt-2.5 leading-relaxed bg-sand-50 dark:bg-slate-800/60 p-2.5 rounded-xl">
+                ${stay.notes}
+              </p>
+
+              <div class="mt-3 flex flex-wrap gap-2">
+                ${stay.links.map(link => `
+                  <a href="${link.url}" target="_blank" rel="noopener noreferrer"
+                     class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-pounamu-50 dark:bg-slate-800 text-pounamu-800 dark:text-emerald-400 hover:bg-pounamu-100 dark:hover:bg-slate-700 transition">
+                    <span>🔗 ${link.label}</span>
+                  </a>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        }).join('')}
+      `;
+    }
+
+    function renderTransportAndCrew() {
+      const container = document.getElementById('tab-transport');
+
+      container.innerHTML = `
+        <!-- Ferries & Flights -->
+        <div>
+          <h2 class="font-bold text-base text-slate-900 dark:text-white mb-2.5 px-1">⛴️ Ferries & Flights Schedule</h2>
+          <div class="space-y-2.5">
+            ${TRANSPORT_SCHEDULE.map(item => `
+              <div class="bg-white dark:bg-slate-900 rounded-2xl p-3.5 shadow-sm border border-slate-200/80 dark:border-slate-800 flex items-start gap-3">
+                <div class="w-10 h-10 rounded-xl bg-pounamu-50 dark:bg-slate-800 flex items-center justify-center text-xl shrink-0">
+                  ${item.icon}
+                </div>
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-center justify-between gap-2">
+                    <span class="text-xs font-bold text-pounamu-700 dark:text-emerald-400">${item.date}</span>
+                    <span class="text-xs font-semibold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800">${item.time}</span>
+                  </div>
+                  <div class="font-bold text-sm text-slate-900 dark:text-white mt-0.5">${item.route}</div>
+                  <div class="text-xs font-medium text-slate-600 dark:text-slate-300 mt-0.5">👤 ${item.who}</div>
+                  <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">${item.note}</div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <!-- Crew Presence Matrix -->
+        <div>
+          <h2 class="font-bold text-base text-slate-900 dark:text-white mb-2.5 px-1">👥 Crew Attendance Matrix</h2>
+          <div class="bg-white dark:bg-slate-900 rounded-2xl p-3 shadow-sm border border-slate-200/80 dark:border-slate-800 overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400">
+                  <th class="py-2 pr-2 font-semibold sticky left-0 bg-white dark:bg-slate-900">Person</th>
+                  ${ITINERARY_DAYS.map(d => `<th class="py-2 px-1.5 text-center font-semibold">D${d.day}<br><span class="text-[10px] font-normal">${d.date.split(' ')[2]}</span></th>`).join('')}
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 dark:divide-slate-800/80">
+                ${CREW_MEMBERS.map(member => `
+                  <tr>
+                    <td class="py-2.5 pr-2 font-semibold whitespace-nowrap sticky left-0 bg-white dark:bg-slate-900">
+                      <span class="inline-block w-2 h-2 rounded-full ${member.color} mr-1.5"></span>${member.name.split(' ')[0]}
+                    </td>
+                    ${ITINERARY_DAYS.map(d => {
+                      const present = d.crew.includes(member.id);
+                      return `<td class="py-2 px-1 text-center">
+                        ${present
+                          ? '<span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 font-bold text-[11px]">✓</span>'
+                          : '<span class="text-slate-300 dark:text-slate-700">—</span>'}
+                      </td>`;
+                    }).join('')}
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderChecklist() {
+      const container = document.getElementById('tab-checklist');
+      const total = appState.checklist.length;
+      const done = appState.checklist.filter(i => i.done).length;
+      const pct = total ? Math.round((done / total) * 100) : 0;
+
+      container.innerHTML = `
+        <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 shadow-sm border border-slate-200/80 dark:border-slate-800">
+          <div class="flex items-center justify-between mb-2">
+            <div>
+              <h2 class="font-bold text-base text-slate-900 dark:text-white">Offline Gear & Trip Prep</h2>
+              <p class="text-xs text-slate-500 dark:text-slate-400">${done} of ${total} items ready (${pct}%)</p>
+            </div>
+            <button onclick="resetChecklist()" class="text-xs text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 underline">Reset</button>
+          </div>
+          <div class="w-full h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+            <div class="h-full bg-emerald-500 transition-all duration-300" style="width: ${pct}%"></div>
+          </div>
+
+          <!-- Add New Item Form -->
+          <form onsubmit="addChecklistItem(event)" class="mt-4 flex gap-2">
+            <input id="new-checklist-input" type="text" placeholder="Add gear or task (e.g., Headlamps, Sunscreen)..."
+              class="flex-1 rounded-xl text-xs px-3 py-2.5 bg-sand-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-pounamu-500" />
+            <button type="submit" class="px-4 py-2.5 rounded-xl bg-pounamu-800 hover:bg-pounamu-700 text-white text-xs font-semibold active:scale-95 transition">
+              Add
+            </button>
+          </form>
+        </div>
+
+        <div class="space-y-2">
+          ${appState.checklist.map(item => `
+            <div class="bg-white dark:bg-slate-900 rounded-xl p-3 shadow-sm border border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-3">
+              <label class="flex items-center gap-3 cursor-pointer flex-1 min-w-0">
+                <input type="checkbox" ${item.done ? 'checked' : ''} onchange="toggleChecklist('${item.id}')"
+                  class="w-5 h-5 rounded-md accent-emerald-600 cursor-pointer shrink-0" />
+                <div class="min-w-0">
+                  <span class="text-[10px] font-bold uppercase tracking-wider text-pounamu-700 dark:text-emerald-400 block">${item.category}</span>
+                  <span class="text-sm ${item.done ? 'line-through text-slate-400' : 'text-slate-800 dark:text-slate-100'}">${item.text}</span>
+                </div>
+              </label>
+              <button onclick="deleteChecklist('${item.id}')" aria-label="Delete item" class="p-1.5 text-slate-400 hover:text-rose-500 transition text-xs">
+                ✕
+              </button>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    // ============================================================================
+    // INTERACTIVE ACTIONS
+    // ============================================================================
+    window.selectDay = function(day) {
+      appState.selectedDay = day;
+      saveState();
+      renderDayFilterBar();
+      renderItinerary();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    window.updateDayNote = function(day, text) {
+      appState.dayNotes[day] = text.trim();
+      saveState();
+      showToast(`Saved note for Day ${day}`);
+    };
+
+    window.toggleStayStatus = function(stayId) {
+      const stay = STAYS_DATA.find(s => s.id === stayId);
+      const current = getStayStatus(stay);
+      const next = current === 'booked' ? 'pending' : 'booked';
+      appState.stayStatuses[stayId] = next;
+      saveState();
+      renderStays();
+      renderItinerary();
+      showToast(`${stay.name}: marked as ${next === 'booked' ? 'Booked ✓' : 'To Book ⏳'}`);
+    };
+
+    window.toggleChecklist = function(id) {
+      const item = appState.checklist.find(i => i.id === id);
+      if (item) {
+        item.done = !item.done;
+        saveState();
+        renderChecklist();
+      }
+    };
+
+    window.addChecklistItem = function(e) {
+      e.preventDefault();
+      const input = document.getElementById('new-checklist-input');
+      const val = input.value.trim();
+      if (!val) return;
+      appState.checklist.unshift({
+        id: 'chk-' + Date.now(),
+        category: 'Custom',
+        text: val,
+        done: false
+      });
+      input.value = '';
+      saveState();
+      renderChecklist();
+      showToast('Added to offline checklist');
+    };
+
+    window.deleteChecklist = function(id) {
+      appState.checklist = appState.checklist.filter(i => i.id !== id);
+      saveState();
+      renderChecklist();
+    };
+
+    window.resetChecklist = function() {
+      appState.checklist = JSON.parse(JSON.stringify(DEFAULT_CHECKLIST));
+      saveState();
+      renderChecklist();
+      showToast('Checklist restored to defaults');
+    };
+
+    function switchTab(tabName) {
+      appState.activeTab = tabName;
+      saveState();
+
+      ['itinerary', 'stays', 'transport', 'checklist'].forEach(t => {
+        const sec = document.getElementById(`tab-${t}`);
+        if (t === tabName) sec.classList.remove('hidden');
+        else sec.classList.add('hidden');
+      });
+
+      const filterBar = document.getElementById('day-filter-bar');
+      if (tabName === 'itinerary') filterBar.classList.remove('hidden');
+      else filterBar.classList.add('hidden');
+
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        if (btn.dataset.tab === tabName) {
+          btn.classList.remove('text-slate-500', 'dark:text-slate-400', 'font-medium');
+          btn.classList.add('text-pounamu-700', 'dark:text-emerald-400', 'font-semibold');
+        } else {
+          btn.classList.remove('text-pounamu-700', 'dark:text-emerald-400', 'font-semibold');
+          btn.classList.add('text-slate-500', 'dark:text-slate-400', 'font-medium');
+        }
+      });
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ============================================================================
+    // DARK MODE & STANDALONE OFFLINE HTML EXPORT
+    // ============================================================================
+    function applyTheme() {
+      const html = document.documentElement;
+      const icon = document.getElementById('theme-icon');
+      if (appState.darkMode) {
+        html.classList.add('dark');
+        icon.textContent = '☀️';
+      } else {
+        html.classList.remove('dark');
+        icon.textContent = '🌙';
+      }
+    }
+
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      appState.darkMode = !appState.darkMode;
+      saveState();
+      applyTheme();
+    });
+
+    document.getElementById('download-offline-btn').addEventListener('click', () => {
+      try {
+        const docContent = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+        const blob = new Blob([docContent], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'NZ-Trip-2027-Offline.html';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast('Downloaded NZ-Trip-2027-Offline.html!');
+      } catch (err) {
+        showToast('Use browser Share / Save Page to store offline');
+      }
+    });
+
+    // Bottom Navigation Listeners
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+      btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+    });
+
+    // Inline Service Worker Registration for Offline Caching when hosted on GitHub Pages
+    if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+      const swCode = `
+        const CACHE_NAME = 'nz-trip-2027-v1';
+        self.addEventListener('install', event => {
+          event.waitUntil(
+            caches.open(CACHE_NAME).then(cache => cache.addAll([self.location.href]))
+          );
+          self.skipWaiting();
+        });
+        self.addEventListener('fetch', event => {
+          event.respondWith(
+            caches.match(event.request).then(cached => cached || fetch(event.request).then(resp => {
+              const copy = resp.clone();
+              caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
+              return resp;
+            }).catch(() => cached))
+          );
+        });
+      `;
+      try {
+        const swBlob = new Blob([swCode], { type: 'application/javascript' });
+        const swUrl = URL.createObjectURL(swBlob);
+        navigator.serviceWorker.register(swUrl).catch(() => {});
+      } catch (e) {}
+    }
+
+    // ============================================================================
+    // INITIALIZATION
+    // ============================================================================
+    window.addEventListener('DOMContentLoaded', () => {
+      applyTheme();
+      renderDayFilterBar();
+      renderItinerary();
+      renderStays();
+      renderTransportAndCrew();
+      renderChecklist();
+      switchTab(appState.activeTab || 'itinerary');
+    });
+  </script>
+</body>
+</html>
